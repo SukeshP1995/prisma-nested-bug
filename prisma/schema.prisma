@@ -1,0 +1,864 @@
+generator client {
+  provider        = "prisma-client-js"
+  binaryTargets   = ["native", "debian-openssl-1.1.x"]
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model PartyInRoleType {
+  id                                Int             @id @default(autoincrement())
+  gln                               String?         @map("gln")
+  partyAddress                      String?         @map("party_address")
+  partyName                         String?         @map("party_name")
+  partyRoleCode                     Json?           @map("party_role_code")
+  informationProviderOfTradeItemTIT TradeItemType?  @relation("InformationProviderOfTradeItem", map: "InformationProviderOfTradeItem")
+  brandOwnerTIT                     TradeItemType?  @relation("BrandOwner", map: "BrandOwner")
+  manufacturerOfTradeItemTIT        TradeItemType[] @relation("ManufacturerOfTradeItem", map: "ManufacturerOfTradeItem")
+  createdAt                         DateTime        @default(now()) @map("reg_date")
+  updatedAt                         DateTime        @default(now()) @map("upd_date")
+  deletedAt                         DateTime?       @map("del_date")
+
+  @@map("party_in_role_type")
+}
+
+model GDSNTradeItemClassificationType {
+  id                             Int            @id @default(autoincrement())
+  gpcCategoryCode                String         @map("gpc_category_code")
+  gpcCategoryName                String?        @map("gpc_category_name")
+  gdsnTradeItemClassificationTIT TradeItemType? @relation("GdsnTradeItemClassification", map: "GdsnTradeItemClassification")
+  createdAt                      DateTime       @default(now()) @map("reg_date")
+  updatedAt                      DateTime       @default(now()) @map("upd_date")
+  deletedAt                      DateTime?      @map("del_date")
+
+  @@map("gdsn_trade_item_classification_type")
+}
+
+model TargetMarketType {
+  id                      Int             @id @default(autoincrement())
+  targetMarketCountryCode Json            @map("target_market_country_code")
+  targetMarketTIT         TradeItemType[] @relation("TargetMarket", map: "TargetMarket")
+  createdAt               DateTime        @default(now()) @map("reg_date")
+  updatedAt               DateTime        @default(now()) @map("upd_date")
+  deletedAt               DateTime?       @map("del_date")
+
+  @@map("target_market_type")
+}
+
+model TradeItemSynchronisationDatesType {
+  id                               Int            @id @default(autoincrement())
+  lastChangeDateTime               String         @map("last_change_date_time")
+  effectiveDateTime                String?        @map("effective_date_time")
+  publicationDateTime              String?        @map("publication_date_time")
+  tradeItemSynchronisationDatesTIT TradeItemType? @relation("TradeItemSynchronisationDates", map: "TradeItemSynchronisationDates")
+  createdAt                        DateTime       @default(now()) @map("reg_date")
+  updatedAt                        DateTime       @default(now()) @map("upd_date")
+  deletedAt                        DateTime?      @map("del_date")
+
+  @@map("trade_item_synchronisation_dates_type")
+}
+
+model TradeItemContactInformationType {
+  id                             Int             @id @default(autoincrement())
+  contactTypeCode                Json            @map("contact_type_code")
+  contactAddress                 String?         @map("contact_address")
+  contactName                    String?         @map("contact_name")
+  tradeItemContactInformationTIT TradeItemType[] @relation("TradeItemContactInformation", map: "TradeItemContactInformation")
+  createdAt                      DateTime        @default(now()) @map("reg_date")
+  updatedAt                      DateTime        @default(now()) @map("upd_date")
+  deletedAt                      DateTime?       @map("del_date")
+
+  @@map("trade_item_contact_information_type")
+}
+
+model ComponentInformationType {
+  id                       Int                       @id @default(autoincrement())
+  componentNumber          Int                       @map("component_number")
+  componentIdentification  Json?                     @map("component_identification")
+  componentInformationTICT TradeItemComponentsType[] @relation("ComponentInformation", map: "ComponentInformation")
+  createdAt                DateTime                  @default(now()) @map("reg_date")
+  updatedAt                DateTime                  @default(now()) @map("upd_date")
+  deletedAt                DateTime?                 @map("del_date")
+
+  @@map("component_information_type")
+}
+
+model TradeItemComponentsType {
+  id                      Int                        @id @default(autoincrement())
+  numberOfPiecesInSet     Int?                       @map("number_of_pieces_in_set")
+  totalNumberOfComponents Int?                       @map("total_number_of_components")
+  componentInformation    ComponentInformationType[] @relation("ComponentInformation", map: "ComponentInformation")
+  tradeItemComponentsTIIT TradeItemInformationType?  @relation("TradeItemComponents", map: "TradeItemComponents")
+  createdAt               DateTime                   @default(now()) @map("reg_date")
+  updatedAt               DateTime                   @default(now()) @map("upd_date")
+  deletedAt               DateTime?                  @map("del_date")
+
+  @@map("trade_item_components_type")
+}
+
+model ReferencedFileInformationType {
+  id                          Int                 @id @default(autoincrement())
+  referencedFileTypeCode      Json                @map("referenced_file_type_code")
+  contentDescription          Json[]              @map("content_description")
+  fileFormatName              String?             @map("file_format_name")
+  fileVersion                 String?             @map("file_version")
+  uniformResourceIdentifier   String?             @map("uniform_resource_identifier")
+  referencedFileInformationCT CertificationType[] @relation("ReferencedFileInformation", map: "ReferencedFileInformation")
+  createdAt                   DateTime            @default(now()) @map("reg_date")
+  updatedAt                   DateTime            @default(now()) @map("upd_date")
+  deletedAt                   DateTime?           @map("del_date")
+
+  @@map("referenced_file_information_type")
+}
+
+model CertificationType {
+  id                                  Int                             @id @default(autoincrement())
+  certificationValue                  String                          @map("certification_value")
+  certificateIssuanceDateTime         String?                         @map("certificate_issuance_date_time")
+  certificationEffectiveEndDateTime   String?                         @map("certification_effective_end_date_time")
+  certificationEffectiveStartDateTime String?                         @map("certification_effective_start_date_time")
+  certificationIdentification         String?                         @map("certification_identification")
+  referencedFileInformation           ReferencedFileInformationType[] @relation("ReferencedFileInformation", map: "ReferencedFileInformation")
+  certificationCIT                    CertificationInformationType[]  @relation("Certification", map: "Certification")
+  createdAt                           DateTime                        @default(now()) @map("reg_date")
+  updatedAt                           DateTime                        @default(now()) @map("upd_date")
+  deletedAt                           DateTime?                       @map("del_date")
+
+  @@map("certification_type")
+}
+
+model CertificationInformationType {
+  id                           Int                                  @id @default(autoincrement())
+  certificationAgency          String?                              @map("certification_agency")
+  certificationStandard        String?                              @map("certification_standard")
+  isCertificateRequired        NonBinaryLogicEnumeration?           @map("is_certificate_required")
+  certification                CertificationType[]                  @relation("Certification", map: "Certification")
+  certificationInformationCIMT CertificationInformationModuleType[] @relation("CertificationInformation", map: "CertificationInformation")
+  createdAt                    DateTime                             @default(now()) @map("reg_date")
+  updatedAt                    DateTime                             @default(now()) @map("upd_date")
+  deletedAt                    DateTime?                            @map("del_date")
+
+  @@map("certification_information_type")
+}
+
+model CertificationInformationModuleType {
+  id                               Int                            @id @default(autoincrement())
+  certificationInformation         CertificationInformationType[] @relation("CertificationInformation", map: "CertificationInformation")
+  certificationInformationModuleET ExtensionType?                 @relation("CertificationInformationModule", map: "CertificationInformationModule")
+  createdAt                        DateTime                       @default(now()) @map("reg_date")
+  updatedAt                        DateTime                       @default(now()) @map("upd_date")
+  deletedAt                        DateTime?                      @map("del_date")
+
+  @@map("certification_information_module_type")
+}
+
+model PackagingMaterialType {
+  id                                   Int             @id @default(autoincrement())
+  packagingMaterialTypeCode            Json            @map("packaging_material_type_code")
+  packagingMaterialCompositionQuantity Json[]          @map("packaging_material_composition_quantity")
+  packagingLabellingTypeCode           Json?           @map("packaging_labelling_type_code")
+  packagingMaterialPT                  PackagingType[] @relation("PackagingMaterial", map: "PackagingMaterial")
+  createdAt                            DateTime        @default(now()) @map("reg_date")
+  updatedAt                            DateTime        @default(now()) @map("upd_date")
+  deletedAt                            DateTime?       @map("del_date")
+
+  @@map("packaging_material_type")
+}
+
+model PackagingDimensionType {
+  id                   Int            @id @default(autoincrement())
+  packagingDepth       Json?          @map("packaging_depth")
+  packagingHeight      Json?          @map("packaging_height")
+  packagingWidth       Json?          @map("packaging_width")
+  packagingDimensionPT PackagingType? @relation("PackagingDimension", map: "PackagingDimension")
+  createdAt            DateTime       @default(now()) @map("reg_date")
+  updatedAt            DateTime       @default(now()) @map("upd_date")
+  deletedAt            DateTime?      @map("del_date")
+
+  @@map("packaging_dimension_type")
+}
+
+model PackagingType {
+  id                    Int                              @id @default(autoincrement())
+  packagingFeatureCode  Json[]                           @map("packaging_feature_code")
+  packagingFunctionCode Json[]                           @map("packaging_function_code")
+  packagingTypeCode     Json?                            @map("packaging_type_code")
+  packagingWeight       Json?                            @map("packaging_weight")
+  platformTypeCode      Json?                            @map("platform_type_code")
+  packagingMaterial     PackagingMaterialType[]          @relation("PackagingMaterial", map: "PackagingMaterial")
+  packagingDimension    PackagingDimensionType?          @relation("PackagingDimension", map: "PackagingDimension", fields: [packagingDimensionId], references: [id])
+  packagingDimensionId  Int?                             @unique @map("packaging_dimension_id")
+  packagingPIMT         PackagingInformationModuleType[] @relation("Packaging", map: "Packaging")
+  createdAt             DateTime                         @default(now()) @map("reg_date")
+  updatedAt             DateTime                         @default(now()) @map("upd_date")
+  deletedAt             DateTime?                        @map("del_date")
+
+  @@map("packaging_type")
+}
+
+model PackagingInformationModuleType {
+  id                           Int             @id @default(autoincrement())
+  packaging                    PackagingType[] @relation("Packaging", map: "Packaging")
+  packagingInformationModuleET ExtensionType?  @relation("PackagingInformationModule", map: "PackagingInformationModule")
+  createdAt                    DateTime        @default(now()) @map("reg_date")
+  updatedAt                    DateTime        @default(now()) @map("upd_date")
+  deletedAt                    DateTime?       @map("del_date")
+
+  @@map("packaging_information_module_type")
+}
+
+model SustainabilityInformationType {
+  id                                    Int                       @id @default(autoincrement())
+  postConsumerRecycledContentPercentage Int?                      @map("post_consumer_recycled_content_percentage")
+  totalRecyclableContentPercentage      Int?                      @map("total_recyclable_content_percentage")
+  tradeItemSustainabilityFeatureCode    Json[]                    @map("trade_item_sustainability_feature_code")
+  tradeItemSustainabilityStatement      Json[]                    @map("trade_item_sustainability_statement")
+  sustainabilityInformationSMT          SustainabilityModuleType? @relation("SustainabilityInformation", map: "SustainabilityInformation")
+  createdAt                             DateTime                  @default(now()) @map("reg_date")
+  updatedAt                             DateTime                  @default(now()) @map("upd_date")
+  deletedAt                             DateTime?                 @map("del_date")
+
+  @@map("sustainability_information_type")
+}
+
+model SustainabilityModuleType {
+  id                          Int                            @id @default(autoincrement())
+  sustainabilityInformation   SustainabilityInformationType? @relation("SustainabilityInformation", map: "SustainabilityInformation", fields: [sustainabilityInformationId], references: [id])
+  sustainabilityInformationId Int?                           @unique @map("sust_info_id")
+  sustainabilityModuleET      ExtensionType?                 @relation("SustainabilityModule", map: "SustainabilityModule")
+  createdAt                   DateTime                       @default(now()) @map("reg_date")
+  updatedAt                   DateTime                       @default(now()) @map("upd_date")
+  deletedAt                   DateTime?                      @map("del_date")
+
+  @@map("sustainability_module_type")
+}
+
+model MaterialCompositionType {
+  id                    Int            @id @default(autoincrement())
+  materialContent       Json[]         @map("material_content")
+  materialCompositionMT MaterialType[] @relation("MaterialComposition", map: "MaterialComposition")
+  createdAt             DateTime       @default(now()) @map("reg_date")
+  updatedAt             DateTime       @default(now()) @map("upd_date")
+  deletedAt             DateTime?      @map("del_date")
+
+  @@map("material_composition_type")
+}
+
+model MaterialType {
+  id                  Int                       @id @default(autoincrement())
+  materialComposition MaterialCompositionType[] @relation("MaterialComposition", map: "MaterialComposition")
+  materialMMT         MaterialModuleType[]      @relation("Material", map: "Material")
+  createdAt           DateTime                  @default(now()) @map("reg_date")
+  updatedAt           DateTime                  @default(now()) @map("upd_date")
+  deletedAt           DateTime?                 @map("del_date")
+
+  @@map("material_type")
+}
+
+model MaterialModuleType {
+  id               Int            @id @default(autoincrement())
+  material         MaterialType[] @relation("Material", map: "Material")
+  materialModuleET ExtensionType? @relation("MaterialModule", map: "MaterialModule")
+  createdAt        DateTime       @default(now()) @map("reg_date")
+  updatedAt        DateTime       @default(now()) @map("upd_date")
+  deletedAt        DateTime?      @map("del_date")
+
+  @@map("material_module_type")
+}
+
+model ConsumerInstructionsType {
+  id                           Int                             @id @default(autoincrement())
+  consumerStorageInstructions  Json[]                          @map("consumer_storage_instructions")
+  consumerUsageInstructions    Json[]                          @map("consumer_usage_instructions")
+  consumerAssemblyInstructions Json[]                          @map("consumer_assembly_instructions")
+  consumerInstructionsCIMT     ConsumerInstructionsModuleType? @relation("ConsumerInstructions", map: "ConsumerInstructions")
+  createdAt                    DateTime                        @default(now()) @map("reg_date")
+  updatedAt                    DateTime                        @default(now()) @map("upd_date")
+  deletedAt                    DateTime?                       @map("del_date")
+
+  @@map("consumer_instructions_type")
+}
+
+model ConsumerInstructionsModuleType {
+  id                           Int                       @id @default(autoincrement())
+  consumerInstructions         ConsumerInstructionsType? @relation("ConsumerInstructions", map: "ConsumerInstructions", fields: [consumerInstructionsId], references: [id])
+  consumerInstructionsId       Int?                      @unique @map("consumer_instructions_id")
+  consumerInstructionsModuleET ExtensionType?            @relation("ConsumerInstructionsModule", map: "ConsumerInstructionsModule")
+  createdAt                    DateTime                  @default(now()) @map("reg_date")
+  updatedAt                    DateTime                  @default(now()) @map("upd_date")
+  deletedAt                    DateTime?                 @map("del_date")
+
+  @@map("consumer_instructions_module_type")
+}
+
+model DeliveryPurchasingInformationType {
+  id                                 Int                                      @id @default(autoincrement())
+  consumerFirstAvailabilityDateTime  String?                                  @map("consumer_first_availability_date_time")
+  orderQuantityMinimum               Int?                                     @map("order_quantity_minimum")
+  startAvailabilityDateTime          String?                                  @map("start_availability_date_time")
+  deliveryPurchasingInformationDPIMT DeliveryPurchasingInformationModuleType? @relation("DeliveryPurchasingInformation", map: "DeliveryPurchasingInformation")
+  createdAt                          DateTime                                 @default(now()) @map("reg_date")
+  updatedAt                          DateTime                                 @default(now()) @map("upd_date")
+  deletedAt                          DateTime?                                @map("del_date")
+
+  @@map("delivery_purchasing_information_type")
+}
+
+model DeliveryPurchasingInformationModuleType {
+  id                                    Int                                @id @default(autoincrement())
+  deliveryPurchasingInformation         DeliveryPurchasingInformationType? @relation("DeliveryPurchasingInformation", map: "DeliveryPurchasingInformation", fields: [deliveryPurchasingInformationId], references: [id])
+  deliveryPurchasingInformationId       Int?                               @unique @map("deli_purc_info_id")
+  deliveryPurchasingInformationModuleET ExtensionType?                     @relation("DeliveryPurchasingInformationModule", map: "DeliveryPurchasingInformationModule")
+  createdAt                             DateTime                           @default(now()) @map("reg_date")
+  updatedAt                             DateTime                           @default(now()) @map("upd_date")
+  deletedAt                             DateTime?                          @map("del_date")
+
+  @@map("delivery_purchasing_information_module_type")
+}
+
+model DurableGoodsCharacteristicsType {
+  id                               Int                                    @id @default(autoincrement())
+  isAssemblyRequired               Boolean?                               @map("is_assembly_required")
+  durableGoodsCharacteristicsDGCMT DurableGoodsCharacteristicsModuleType? @relation("DurableGoodsCharacteristics", map: "DurableGoodsCharacteristics")
+  createdAt                        DateTime                               @default(now()) @map("reg_date")
+  updatedAt                        DateTime                               @default(now()) @map("upd_date")
+  deletedAt                        DateTime?                              @map("del_date")
+
+  @@map("durable_goods_characteristics_type")
+}
+
+model DurableGoodsCharacteristicsModuleType {
+  id                                  Int                              @id @default(autoincrement())
+  durableGoodsCharacteristics         DurableGoodsCharacteristicsType? @relation("DurableGoodsCharacteristics", map: "DurableGoodsCharacteristics", fields: [durableGoodsCharacteristicsId], references: [id])
+  durableGoodsCharacteristicsId       Int?                             @unique @map("dura_good_char_id")
+  durableGoodsCharacteristicsModuleET ExtensionType?                   @relation("DurableGoodsCharacteristicsModule", map: "DurableGoodsCharacteristicsModule")
+  createdAt                           DateTime                         @default(now()) @map("reg_date")
+  updatedAt                           DateTime                         @default(now()) @map("upd_date")
+  deletedAt                           DateTime?                        @map("del_date")
+
+  @@map("durable_goods_characteristics_module_type")
+}
+
+model DutyFeeTaxType {
+  id              Int                         @id @default(autoincrement())
+  dutyFeeTaxRate  Int?                        @map("duty_fee_tax_rate")
+  dutyFeeTaxDFTIT DutyFeeTaxInformationType[] @relation("DutyFeeTax", map: "DutyFeeTax")
+  createdAt       DateTime                    @default(now()) @map("reg_date")
+  updatedAt       DateTime                    @default(now()) @map("upd_date")
+  deletedAt       DateTime?                   @map("del_date")
+
+  @@map("duty_fee_tax_type")
+}
+
+model DutyFeeTaxInformationType {
+  id                          Int                               @id @default(autoincrement())
+  dutyFeeTaxTypeCode          String                            @map("duty_fee_tax_type_code")
+  dutyFeeTaxAgencyCode        Json?                             @map("duty_fee_tax_agency_code")
+  dutyFeeTax                  DutyFeeTaxType[]                  @relation("DutyFeeTax", map: "DutyFeeTax")
+  dutyFeeTaxInformationDFTIMT DutyFeeTaxInformationModuleType[] @relation("DutyFeeTaxInformation", map: "DutyFeeTaxInformation")
+  createdAt                   DateTime                          @default(now()) @map("reg_date")
+  updatedAt                   DateTime                          @default(now()) @map("upd_date")
+  deletedAt                   DateTime?                         @map("del_date")
+
+  @@map("duty_fee_tax_information_type")
+}
+
+model DutyFeeTaxInformationModuleType {
+  id                            Int                         @id @default(autoincrement())
+  dutyFeeTaxInformation         DutyFeeTaxInformationType[] @relation("DutyFeeTaxInformation", map: "DutyFeeTaxInformation")
+  dutyFeeTaxInformationModuleET ExtensionType?              @relation("DutyFeeTaxInformationModule", map: "DutyFeeTaxInformationModule")
+  createdAt                     DateTime                    @default(now()) @map("reg_date")
+  updatedAt                     DateTime                    @default(now()) @map("upd_date")
+  deletedAt                     DateTime?                   @map("del_date")
+
+  @@map("duty_fee_tax_information_module_type")
+}
+
+model MarketingInformationType {
+  id                             Int                             @id @default(autoincrement())
+  tradeItemFeatureBenefit        Json[]                          @map("trade_item_feature_benefit")
+  tradeItemFeatureCodeReference  Json[]                          @map("trade_item_feature_code_reference")
+  tradeItemMarketingMessage      Json[]                          @map("trade_item_marketing_message")
+  designer                       Json[]                          @map("designer")
+  shortTradeItemMarketingMessage Json[]                          @map("short_trade_item_marketing_message")
+  marketingInformationMIMT       MarketingInformationModuleType? @relation("MarketingInformation", map: "MarketingInformation")
+  createdAt                      DateTime                        @default(now()) @map("reg_date")
+  updatedAt                      DateTime                        @default(now()) @map("upd_date")
+  deletedAt                      DateTime?                       @map("del_date")
+
+  @@map("marketing_information_type")
+}
+
+model MarketingInformationModuleType {
+  id                           Int                       @id @default(autoincrement())
+  marketingInformation         MarketingInformationType? @relation("MarketingInformation", map: "MarketingInformation", fields: [marketingInformationId], references: [id])
+  marketingInformationId       Int?                      @unique @map("marketing_information_id")
+  marketingInformationModuleET ExtensionType?            @relation("MarketingInformationModule", map: "MarketingInformationModule")
+  createdAt                    DateTime                  @default(now()) @map("reg_date")
+  updatedAt                    DateTime                  @default(now()) @map("upd_date")
+  deletedAt                    DateTime?                 @map("del_date")
+
+  @@map("marketing_information_module_type")
+}
+
+model ConsumerWarningInformationType {
+  id                            Int                    @id @default(autoincrement())
+  consumerWarningDescription    Json[]                 @map("consumer_warning_description")
+  consumerWarningInformationPMT PackagingMarkingType[] @relation("ConsumerWarningInformation", map: "ConsumerWarningInformation")
+  createdAt                     DateTime               @default(now()) @map("reg_date")
+  updatedAt                     DateTime               @default(now()) @map("upd_date")
+  deletedAt                     DateTime?              @map("del_date")
+
+  @@map("consumer_warning_information_type")
+}
+
+model PackagingMarkingType {
+  id                         Int                              @id @default(autoincrement())
+  consumerWarningInformation ConsumerWarningInformationType[] @relation("ConsumerWarningInformation", map: "ConsumerWarningInformation")
+  packagingMarkingPMMT       PackagingMarkingModuleType?      @relation("PackagingMarking", map: "PackagingMarking")
+  createdAt                  DateTime                         @default(now()) @map("reg_date")
+  updatedAt                  DateTime                         @default(now()) @map("upd_date")
+  deletedAt                  DateTime?                        @map("del_date")
+
+  @@map("packaging_marking_type")
+}
+
+model PackagingMarkingModuleType {
+  id                       Int                   @id @default(autoincrement())
+  packagingMarking         PackagingMarkingType? @relation("PackagingMarking", map: "PackagingMarking", fields: [packagingMarkingId], references: [id])
+  packagingMarkingId       Int?                  @unique @map("packaging_marking_id")
+  packagingMarkingModuleET ExtensionType?        @relation("PackagingMarkingModule", map: "PackagingMarkingModule")
+  createdAt                DateTime              @default(now()) @map("reg_date")
+  updatedAt                DateTime              @default(now()) @map("upd_date")
+  deletedAt                DateTime?             @map("del_date")
+
+  @@map("packaging_marking_module_type")
+}
+
+model IndividualPackagingComponentLevelType {
+  id                                    Int                                 @id @default(autoincrement())
+  packagingMaterialDescription          Json[]                              @map("packaging_material_description")
+  individualPackagingComponentLevelPSMT PackagingSustainabilityModuleType[] @relation("IndividualPackagingComponentLevel", map: "IndividualPackagingComponentLevel")
+  createdAt                             DateTime                            @default(now()) @map("reg_date")
+  updatedAt                             DateTime                            @default(now()) @map("upd_date")
+  deletedAt                             DateTime?                           @map("del_date")
+
+  @@map("individual_packaging_component_level_type")
+}
+
+model PackagingSustainabilityModuleType {
+  id                                Int                                     @id @default(autoincrement())
+  individualPackagingComponentLevel IndividualPackagingComponentLevelType[] @relation("IndividualPackagingComponentLevel", map: "IndividualPackagingComponentLevel")
+  packagingSustainabilityModuleET   ExtensionType?                          @relation("PackagingSustainabilityModule", map: "PackagingSustainabilityModule")
+  createdAt                         DateTime                                @default(now()) @map("reg_date")
+  updatedAt                         DateTime                                @default(now()) @map("upd_date")
+  deletedAt                         DateTime?                               @map("del_date")
+
+  @@map("packaging_sustainability_module_type")
+}
+
+model ImportClassificationType {
+  id                           Int                             @id @default(autoincrement())
+  importClassificationTypeCode Json?                           @map("import_classification_type_code")
+  importClassificationValue    String?                         @map("import_classification_value")
+  importClassificationPOIAMT   PlaceOfItemActivityModuleType[] @relation("ImportClassification", map: "ImportClassification")
+  createdAt                    DateTime                        @default(now()) @map("reg_date")
+  updatedAt                    DateTime                        @default(now()) @map("upd_date")
+  deletedAt                    DateTime?                       @map("del_date")
+
+  @@map("import_classification_type")
+}
+
+model PlaceOfProductActivityType {
+  id                           Int                            @id @default(autoincrement())
+  countryOfOriginStatement     Json[]                         @map("country_of_origin_statement")
+  placeOfProductActivityPOIAMT PlaceOfItemActivityModuleType? @relation("PlaceOfProductActivity", map: "PlaceOfProductActivity")
+  createdAt                    DateTime                       @default(now()) @map("reg_date")
+  updatedAt                    DateTime                       @default(now()) @map("upd_date")
+  deletedAt                    DateTime?                      @map("del_date")
+
+  @@map("place_of_product_activity_type")
+}
+
+model PlaceOfItemActivityModuleType {
+  id                          Int                         @id @default(autoincrement())
+  importClassification        ImportClassificationType[]  @relation("ImportClassification", map: "ImportClassification")
+  placeOfProductActivity      PlaceOfProductActivityType? @relation("PlaceOfProductActivity", map: "PlaceOfProductActivity", fields: [placeOfProductActivityId], references: [id])
+  placeOfProductActivityId    Int?                        @unique @map("place_of_product_activity_id")
+  placeOfItemActivityModuleET ExtensionType?              @relation("PlaceOfItemActivityModule", map: "PlaceOfItemActivityModule")
+  createdAt                   DateTime                    @default(now()) @map("reg_date")
+  updatedAt                   DateTime                    @default(now()) @map("upd_date")
+  deletedAt                   DateTime?                   @map("del_date")
+
+  @@map("place_of_item_activity_module_type")
+}
+
+model ProductCharacteristicsType {
+  id                                    Int                                @id @default(autoincrement())
+  productCharacteristicCode             Json                               @map("product_characteristic_code")
+  productCharacteristicValueMeasurement Json[]                             @map("product_characteristic_value_measurement")
+  productCharacteristicsPCMT            ProductCharacteristicsModuleType[] @relation("ProductCharacteristics", map: "ProductCharacteristics")
+  createdAt                             DateTime                           @default(now()) @map("reg_date")
+  updatedAt                             DateTime                           @default(now()) @map("upd_date")
+  deletedAt                             DateTime?                          @map("del_date")
+
+  @@map("product_characteristics_type")
+}
+
+model ProductCharacteristicsModuleType {
+  id                             Int                          @id @default(autoincrement())
+  productCharacteristics         ProductCharacteristicsType[] @relation("ProductCharacteristics", map: "ProductCharacteristics")
+  productCharacteristicsModuleET ExtensionType?               @relation("ProductCharacteristicsModule", map: "ProductCharacteristicsModule")
+  createdAt                      DateTime                     @default(now()) @map("reg_date")
+  updatedAt                      DateTime                     @default(now()) @map("upd_date")
+  deletedAt                      DateTime?                    @map("del_date")
+
+  @@map("product_characteristics_module_type")
+}
+
+model RegulatoryInformationType {
+  id                             Int                            @id @default(autoincrement())
+  isTradeItemRegulationCompliant NonBinaryLogicEnumeration?     @map("is_trade_item_regulation_compliant")
+  regulatoryInformationRTIMT     RegulatedTradeItemModuleType[] @relation("RegulatoryInformation", map: "RegulatoryInformation")
+  createdAt                      DateTime                       @default(now()) @map("reg_date")
+  updatedAt                      DateTime                       @default(now()) @map("upd_date")
+  deletedAt                      DateTime?                      @map("del_date")
+
+  @@map("regulatory_information_type")
+}
+
+model RegulatedTradeItemModuleType {
+  id                         Int                         @id @default(autoincrement())
+  regulatoryInformation      RegulatoryInformationType[] @relation("RegulatoryInformation", map: "RegulatoryInformation")
+  regulatedTradeItemModuleET ExtensionType?              @relation("RegulatedTradeItemModule", map: "RegulatedTradeItemModule")
+  createdAt                  DateTime                    @default(now()) @map("reg_date")
+  updatedAt                  DateTime                    @default(now()) @map("upd_date")
+  deletedAt                  DateTime?                   @map("del_date")
+
+  @@map("regulated_trade_item_module_type")
+}
+
+model TradeItemPriceType {
+  id                  Int                             @id @default(autoincrement())
+  tradeItemPrice      Json                            @map("trade_item_price")
+  cataloguePriceTIPIT TradeItemPriceInformationType[] @relation("CataloguePrice", map: "CataloguePrice")
+  createdAt           DateTime                        @default(now()) @map("reg_date")
+  updatedAt           DateTime                        @default(now()) @map("upd_date")
+  deletedAt           DateTime?                       @map("del_date")
+
+  @@map("trade_item_price_type")
+}
+
+model TradeItemPriceInformationType {
+  id                            Int                         @id @default(autoincrement())
+  cataloguePrice                TradeItemPriceType[]        @relation("CataloguePrice", map: "CataloguePrice")
+  tradeItemPriceInformationSIMT SalesInformationModuleType? @relation("TradeItemPriceInformation", map: "TradeItemPriceInformation")
+  createdAt                     DateTime                    @default(now()) @map("reg_date")
+  updatedAt                     DateTime                    @default(now()) @map("upd_date")
+  deletedAt                     DateTime?                   @map("del_date")
+
+  @@map("trade_item_price_information_type")
+}
+
+model SalesInformationModuleType {
+  id                          Int                            @id @default(autoincrement())
+  tradeItemPriceInformation   TradeItemPriceInformationType? @relation("TradeItemPriceInformation", map: "TradeItemPriceInformation", fields: [tradeItemPriceInformationId], references: [id])
+  tradeItemPriceInformationId Int?                           @unique @map("trad_item_pric_info_id")
+  salesInformationModuleET    ExtensionType?                 @relation("SalesInformationModule", map: "SalesInformationModule")
+  createdAt                   DateTime                       @default(now()) @map("reg_date")
+  updatedAt                   DateTime                       @default(now()) @map("upd_date")
+  deletedAt                   DateTime?                      @map("del_date")
+
+  @@map("sales_information_module_type")
+}
+
+model DataCarrierType {
+  id                            Int                                               @id @default(autoincrement())
+  applicationIdentifierTypeCode Json[]                                            @map("application_identifier_type_code")
+  dataCarrierFamilyTypeCode     Json?                                             @map("data_carrier_family_type_code")
+  dataCarrierTypeCode           Json?                                             @map("data_carrier_type_code")
+  dataCarrierTIDCAIMT           TradeItemDataCarrierAndIdentificationModuleType[] @relation("DataCarrier", map: "DataCarrier")
+  createdAt                     DateTime                                          @default(now()) @map("reg_date")
+  updatedAt                     DateTime                                          @default(now()) @map("upd_date")
+  deletedAt                     DateTime?                                         @map("del_date")
+
+  @@map("data_carrier_type")
+}
+
+model TradeItemDataCarrierAndIdentificationModuleType {
+  id                                            Int               @id @default(autoincrement())
+  dataCarrier                                   DataCarrierType[] @relation("DataCarrier", map: "DataCarrier")
+  tradeItemDataCarrierAndIdentificationModuleET ExtensionType?    @relation("TradeItemDataCarrierAndIdentificationModule", map: "TradeItemDataCarrierAndIdentificationModule")
+  createdAt                                     DateTime          @default(now()) @map("reg_date")
+  updatedAt                                     DateTime          @default(now()) @map("upd_date")
+  deletedAt                                     DateTime?         @map("del_date")
+
+  @@map("trade_item_data_carrier_and_identification_module_type")
+}
+
+model BrandNameInformationType {
+  id                        Int                                  @id @default(autoincrement())
+  brandName                 String                               @map("brand_name")
+  subBrand                  String?                              @map("sub_brand")
+  brandNameInformationTIDIT TradeItemDescriptionInformationType? @relation("BrandNameInformation", map: "BrandNameInformation")
+  createdAt                 DateTime                             @default(now()) @map("reg_date")
+  updatedAt                 DateTime                             @default(now()) @map("upd_date")
+  deletedAt                 DateTime?                            @map("del_date")
+
+  @@map("brand_name_information_type")
+}
+
+model ColourType {
+  id               Int                                   @id @default(autoincrement())
+  colourCode       Json?                                 @map("colour_code")
+  colourFamilyCode Json?                                 @map("colour_family_code")
+  colourTIDIT      TradeItemDescriptionInformationType[] @relation("Colour", map: "Colour")
+  createdAt        DateTime                              @default(now()) @map("reg_date")
+  updatedAt        DateTime                              @default(now()) @map("upd_date")
+  deletedAt        DateTime?                             @map("del_date")
+
+  @@map("colour_type")
+}
+
+model TradeItemDescriptionInformationType {
+  id                                   Int                             @id @default(autoincrement())
+  descriptionShort                     Json[]                          @map("description_short")
+  functionalName                       Json[]                          @map("functional_name")
+  labelDescription                     Json[]                          @map("label_description")
+  variantDescription                   Json[]                          @map("variant_description")
+  brandNameInformation                 BrandNameInformationType?       @relation("BrandNameInformation", map: "BrandNameInformation", fields: [brandNameInformationId], references: [id])
+  brandNameInformationId               Int?                            @unique @map("brand_name_information_id")
+  colour                               ColourType[]                    @relation("Colour", map: "Colour")
+  tradeItemDescriptionInformationTIDMT TradeItemDescriptionModuleType? @relation("TradeItemDescriptionInformation", map: "TradeItemDescriptionInformation")
+  createdAt                            DateTime                        @default(now()) @map("reg_date")
+  updatedAt                            DateTime                        @default(now()) @map("upd_date")
+  deletedAt                            DateTime?                       @map("del_date")
+
+  @@map("trade_item_description_information_type")
+}
+
+model TradeItemDescriptionModuleType {
+  id                                Int                                  @id @default(autoincrement())
+  tradeItemDescriptionInformation   TradeItemDescriptionInformationType? @relation("TradeItemDescriptionInformation", map: "TradeItemDescriptionInformation", fields: [tradeItemDescriptionInformationId], references: [id])
+  tradeItemDescriptionInformationId Int?                                 @unique @map("trad_item_desc_info_id")
+  tradeItemDescriptionModuleET      ExtensionType?                       @relation("TradeItemDescriptionModule", map: "TradeItemDescriptionModule")
+  createdAt                         DateTime                             @default(now()) @map("reg_date")
+  updatedAt                         DateTime                             @default(now()) @map("upd_date")
+  deletedAt                         DateTime?                            @map("del_date")
+
+  @@map("trade_item_description_module_type")
+}
+
+model TradeItemMeasurementsType {
+  id                         Int                              @id @default(autoincrement())
+  depth                      Json?                            @map("depth")
+  height                     Json?                            @map("height")
+  netContent                 Json[]                           @map("net_content")
+  width                      Json?                            @map("width")
+  netContentStatement        Json[]                           @map("net_content_statement")
+  tradeItemWeight            Json?                            @map("trade_item_weight")
+  tradeItemMeasurementsTIMMT TradeItemMeasurementsModuleType? @relation("TradeItemMeasurements", map: "TradeItemMeasurements")
+  createdAt                  DateTime                         @default(now()) @map("reg_date")
+  updatedAt                  DateTime                         @default(now()) @map("upd_date")
+  deletedAt                  DateTime?                        @map("del_date")
+
+  @@map("trade_item_measurements_type")
+}
+
+model TradeItemMeasurementsModuleType {
+  id                            Int                        @id @default(autoincrement())
+  tradeItemMeasurements         TradeItemMeasurementsType? @relation("TradeItemMeasurements", map: "TradeItemMeasurements", fields: [tradeItemMeasurementsId], references: [id])
+  tradeItemMeasurementsId       Int?                       @unique @map("trade_item_measurements_id")
+  tradeItemMeasurementsModuleET ExtensionType?             @relation("TradeItemMeasurementsModule", map: "TradeItemMeasurementsModule")
+  createdAt                     DateTime                   @default(now()) @map("reg_date")
+  updatedAt                     DateTime                   @default(now()) @map("upd_date")
+  deletedAt                     DateTime?                  @map("del_date")
+
+  @@map("trade_item_measurements_module_type")
+}
+
+model TradeItemStackingType {
+  id                     Int                                @id @default(autoincrement())
+  stackingFactor         Int?                               @map("stacking_factor")
+  stackingFactorTypeCode Json?                              @map("stacking_factor_type_code")
+  tradeItemStackingTIHIT TradeItemHandlingInformationType[] @relation("TradeItemStacking", map: "TradeItemStacking")
+  createdAt              DateTime                           @default(now()) @map("reg_date")
+  updatedAt              DateTime                           @default(now()) @map("upd_date")
+  deletedAt              DateTime?                          @map("del_date")
+
+  @@map("trade_item_stacking_type")
+}
+
+model TradeItemHandlingInformationType {
+  id                                Int                          @id @default(autoincrement())
+  handlingInstructionsDescription   Json[]                       @map("handling_instructions_description")
+  tradeItemStacking                 TradeItemStackingType[]      @relation("TradeItemStacking", map: "TradeItemStacking")
+  tradeItemHandlingInformationTIHMT TradeItemHandlingModuleType? @relation("TradeItemHandlingInformation", map: "TradeItemHandlingInformation")
+  createdAt                         DateTime                     @default(now()) @map("reg_date")
+  updatedAt                         DateTime                     @default(now()) @map("upd_date")
+  deletedAt                         DateTime?                    @map("del_date")
+
+  @@map("trade_item_handling_information_type")
+}
+
+model TradeItemHandlingModuleType {
+  id                             Int                               @id @default(autoincrement())
+  tradeItemHandlingInformation   TradeItemHandlingInformationType? @relation("TradeItemHandlingInformation", map: "TradeItemHandlingInformation", fields: [tradeItemHandlingInformationId], references: [id])
+  tradeItemHandlingInformationId Int?                              @unique @map("trad_item_hand_info_id")
+  tradeItemHandlingModuleET      ExtensionType?                    @relation("TradeItemHandlingModule", map: "TradeItemHandlingModule")
+  createdAt                      DateTime                          @default(now()) @map("reg_date")
+  updatedAt                      DateTime                          @default(now()) @map("upd_date")
+  deletedAt                      DateTime?                         @map("del_date")
+
+  @@map("trade_item_handling_module_type")
+}
+
+model TradeItemHierarchyType {
+  id                                            Int                           @id @default(autoincrement())
+  quantityOfCompleteLayersContainedInATradeItem Int?                          @map("quantity_of_complete_layers_contained_in_a_trade_item")
+  tradeItemHierarchyTIHMT                       TradeItemHierarchyModuleType? @relation("TradeItemHierarchy", map: "TradeItemHierarchy")
+  createdAt                                     DateTime                      @default(now()) @map("reg_date")
+  updatedAt                                     DateTime                      @default(now()) @map("upd_date")
+  deletedAt                                     DateTime?                     @map("del_date")
+
+  @@map("trade_item_hierarchy_type")
+}
+
+model TradeItemHierarchyModuleType {
+  id                         Int                     @id @default(autoincrement())
+  tradeItemHierarchy         TradeItemHierarchyType? @relation("TradeItemHierarchy", map: "TradeItemHierarchy", fields: [tradeItemHierarchyId], references: [id])
+  tradeItemHierarchyId       Int?                    @unique @map("trade_item_hierarchy_id")
+  tradeItemHierarchyModuleET ExtensionType?          @relation("TradeItemHierarchyModule", map: "TradeItemHierarchyModule")
+  createdAt                  DateTime                @default(now()) @map("reg_date")
+  updatedAt                  DateTime                @default(now()) @map("upd_date")
+  deletedAt                  DateTime?               @map("del_date")
+
+  @@map("trade_item_hierarchy_module_type")
+}
+
+model VariableTradeItemInformationType {
+  id                                 Int                                     @id @default(autoincrement())
+  isTradeItemAVariableUnit           Boolean?                                @map("is_trade_item_a_variable_unit")
+  variableTradeItemInformationVTIIMT VariableTradeItemInformationModuleType? @relation("VariableTradeItemInformation", map: "VariableTradeItemInformation")
+  createdAt                          DateTime                                @default(now()) @map("reg_date")
+  updatedAt                          DateTime                                @default(now()) @map("upd_date")
+  deletedAt                          DateTime?                               @map("del_date")
+
+  @@map("variable_trade_item_information_type")
+}
+
+model VariableTradeItemInformationModuleType {
+  id                                   Int                               @id @default(autoincrement())
+  variableTradeItemInformation         VariableTradeItemInformationType? @relation("VariableTradeItemInformation", map: "VariableTradeItemInformation", fields: [variableTradeItemInformationId], references: [id])
+  variableTradeItemInformationId       Int?                              @unique @map("vari_trad_item_info_id")
+  variableTradeItemInformationModuleET ExtensionType?                    @relation("VariableTradeItemInformationModule", map: "VariableTradeItemInformationModule")
+  createdAt                            DateTime                          @default(now()) @map("reg_date")
+  updatedAt                            DateTime                          @default(now()) @map("upd_date")
+  deletedAt                            DateTime?                         @map("del_date")
+
+  @@map("variable_trade_item_information_module_type")
+}
+
+model ExtensionType {
+  id                                            Int                                              @id @default(autoincrement())
+  certificationInformationModule                CertificationInformationModuleType?              @relation("CertificationInformationModule", map: "CertificationInformationModule", fields: [certificationInformationModuleId], references: [id])
+  certificationInformationModuleId              Int?                                             @unique @map("cert_info_modu_id")
+  packagingInformationModule                    PackagingInformationModuleType?                  @relation("PackagingInformationModule", map: "PackagingInformationModule", fields: [packagingInformationModuleId], references: [id])
+  packagingInformationModuleId                  Int?                                             @unique @map("pack_info_modu_id")
+  sustainabilityModule                          SustainabilityModuleType?                        @relation("SustainabilityModule", map: "SustainabilityModule", fields: [sustainabilityModuleId], references: [id])
+  sustainabilityModuleId                        Int?                                             @unique @map("sustainability_module_id")
+  materialModule                                MaterialModuleType?                              @relation("MaterialModule", map: "MaterialModule", fields: [materialModuleId], references: [id])
+  materialModuleId                              Int?                                             @unique @map("material_module_id")
+  consumerInstructionsModule                    ConsumerInstructionsModuleType?                  @relation("ConsumerInstructionsModule", map: "ConsumerInstructionsModule", fields: [consumerInstructionsModuleId], references: [id])
+  consumerInstructionsModuleId                  Int?                                             @unique @map("cons_inst_modu_id")
+  deliveryPurchasingInformationModule           DeliveryPurchasingInformationModuleType?         @relation("DeliveryPurchasingInformationModule", map: "DeliveryPurchasingInformationModule", fields: [deliveryPurchasingInformationModuleId], references: [id])
+  deliveryPurchasingInformationModuleId         Int?                                             @unique @map("deli_purc_info_modu_id")
+  durableGoodsCharacteristicsModule             DurableGoodsCharacteristicsModuleType?           @relation("DurableGoodsCharacteristicsModule", map: "DurableGoodsCharacteristicsModule", fields: [durableGoodsCharacteristicsModuleId], references: [id])
+  durableGoodsCharacteristicsModuleId           Int?                                             @unique @map("dura_good_char_modu_id")
+  dutyFeeTaxInformationModule                   DutyFeeTaxInformationModuleType?                 @relation("DutyFeeTaxInformationModule", map: "DutyFeeTaxInformationModule", fields: [dutyFeeTaxInformationModuleId], references: [id])
+  dutyFeeTaxInformationModuleId                 Int?                                             @unique @map("duty_fee_tax_info_modu_id")
+  marketingInformationModule                    MarketingInformationModuleType?                  @relation("MarketingInformationModule", map: "MarketingInformationModule", fields: [marketingInformationModuleId], references: [id])
+  marketingInformationModuleId                  Int?                                             @unique @map("mark_info_modu_id")
+  packagingMarkingModule                        PackagingMarkingModuleType?                      @relation("PackagingMarkingModule", map: "PackagingMarkingModule", fields: [packagingMarkingModuleId], references: [id])
+  packagingMarkingModuleId                      Int?                                             @unique @map("packaging_marking_module_id")
+  packagingSustainabilityModule                 PackagingSustainabilityModuleType?               @relation("PackagingSustainabilityModule", map: "PackagingSustainabilityModule", fields: [packagingSustainabilityModuleId], references: [id])
+  packagingSustainabilityModuleId               Int?                                             @unique @map("pack_sust_modu_id")
+  placeOfItemActivityModule                     PlaceOfItemActivityModuleType?                   @relation("PlaceOfItemActivityModule", map: "PlaceOfItemActivityModule", fields: [placeOfItemActivityModuleId], references: [id])
+  placeOfItemActivityModuleId                   Int?                                             @unique @map("plac_of_item_acti_modu_id")
+  productCharacteristicsModule                  ProductCharacteristicsModuleType?                @relation("ProductCharacteristicsModule", map: "ProductCharacteristicsModule", fields: [productCharacteristicsModuleId], references: [id])
+  productCharacteristicsModuleId                Int?                                             @unique @map("prod_char_modu_id")
+  regulatedTradeItemModule                      RegulatedTradeItemModuleType?                    @relation("RegulatedTradeItemModule", map: "RegulatedTradeItemModule", fields: [regulatedTradeItemModuleId], references: [id])
+  regulatedTradeItemModuleId                    Int?                                             @unique @map("regu_trad_item_modu_id")
+  salesInformationModule                        SalesInformationModuleType?                      @relation("SalesInformationModule", map: "SalesInformationModule", fields: [salesInformationModuleId], references: [id])
+  salesInformationModuleId                      Int?                                             @unique @map("sales_information_module_id")
+  tradeItemDataCarrierAndIdentificationModule   TradeItemDataCarrierAndIdentificationModuleType? @relation("TradeItemDataCarrierAndIdentificationModule", map: "TradeItemDataCarrierAndIdentificationModule", fields: [tradeItemDataCarrierAndIdentificationModuleId], references: [id])
+  tradeItemDataCarrierAndIdentificationModuleId Int?                                             @unique @map("trad_item_data_carr_and_iden_modu_id")
+  tradeItemDescriptionModule                    TradeItemDescriptionModuleType?                  @relation("TradeItemDescriptionModule", map: "TradeItemDescriptionModule", fields: [tradeItemDescriptionModuleId], references: [id])
+  tradeItemDescriptionModuleId                  Int?                                             @unique @map("trad_item_desc_modu_id")
+  tradeItemMeasurementsModule                   TradeItemMeasurementsModuleType?                 @relation("TradeItemMeasurementsModule", map: "TradeItemMeasurementsModule", fields: [tradeItemMeasurementsModuleId], references: [id])
+  tradeItemMeasurementsModuleId                 Int?                                             @unique @map("trad_item_meas_modu_id")
+  tradeItemHandlingModule                       TradeItemHandlingModuleType?                     @relation("TradeItemHandlingModule", map: "TradeItemHandlingModule", fields: [tradeItemHandlingModuleId], references: [id])
+  tradeItemHandlingModuleId                     Int?                                             @unique @map("trade_item_handling_module_id")
+  tradeItemHierarchyModule                      TradeItemHierarchyModuleType?                    @relation("TradeItemHierarchyModule", map: "TradeItemHierarchyModule", fields: [tradeItemHierarchyModuleId], references: [id])
+  tradeItemHierarchyModuleId                    Int?                                             @unique @map("trad_item_hier_modu_id")
+  variableTradeItemInformationModule            VariableTradeItemInformationModuleType?          @relation("VariableTradeItemInformationModule", map: "VariableTradeItemInformationModule", fields: [variableTradeItemInformationModuleId], references: [id])
+  variableTradeItemInformationModuleId          Int?                                             @unique @map("vari_trad_item_info_modu_id")
+  extensionTIIT                                 TradeItemInformationType?                        @relation("Extension", map: "Extension")
+  createdAt                                     DateTime                                         @default(now()) @map("reg_date")
+  updatedAt                                     DateTime                                         @default(now()) @map("upd_date")
+  deletedAt                                     DateTime?                                        @map("del_date")
+
+  @@map("extension_type")
+}
+
+model TradeItemInformationType {
+  id                      Int                      @id @default(autoincrement())
+  tradeItemComponents     TradeItemComponentsType? @relation("TradeItemComponents", map: "TradeItemComponents", fields: [tradeItemComponentsId], references: [id])
+  tradeItemComponentsId   Int?                     @unique @map("trade_item_components_id")
+  extension               ExtensionType?           @relation("Extension", map: "Extension", fields: [extensionId], references: [id])
+  extensionId             Int?                     @unique @map("extension_id")
+  tradeItemInformationTIT TradeItemType[]          @relation("TradeItemInformation", map: "TradeItemInformation")
+  createdAt               DateTime                 @default(now()) @map("reg_date")
+  updatedAt               DateTime                 @default(now()) @map("upd_date")
+  deletedAt               DateTime?                @map("del_date")
+
+  @@map("trade_item_information_type")
+}
+
+model TradeItemType {
+  gtin                              String                            @id @map("gtin")
+  additionalTradeItemIdentification Json[]                            @map("additional_trade_item_identification")
+  isTradeItemABaseUnit              Boolean?                          @map("is_trade_item_a_base_unit")
+  isTradeItemAConsumerUnit          Boolean?                          @map("is_trade_item_a_consumer_unit")
+  isTradeItemADespatchUnit          Boolean?                          @map("is_trade_item_a_despatch_unit")
+  isTradeItemAnInvoiceUnit          Boolean?                          @map("is_trade_item_an_invoice_unit")
+  isTradeItemAnOrderableUnit        Boolean?                          @map("is_trade_item_an_orderable_unit")
+  tradeItemUnitDescriptorCode       Json?                             @map("trade_item_unit_descriptor_code")
+  informationProviderOfTradeItem    PartyInRoleType                   @relation("InformationProviderOfTradeItem", map: "InformationProviderOfTradeItem", fields: [informationProviderOfTradeItemId], references: [id])
+  informationProviderOfTradeItemId  Int                               @unique @map("info_prov_of_trad_item_id")
+  brandOwner                        PartyInRoleType?                  @relation("BrandOwner", map: "BrandOwner", fields: [brandOwnerId], references: [id])
+  brandOwnerId                      Int?                              @unique @map("brand_owner_id")
+  manufacturerOfTradeItem           PartyInRoleType[]                 @relation("ManufacturerOfTradeItem", map: "ManufacturerOfTradeItem")
+  gdsnTradeItemClassification       GDSNTradeItemClassificationType   @relation("GdsnTradeItemClassification", map: "GdsnTradeItemClassification", fields: [gdsnTradeItemClassificationId], references: [id])
+  gdsnTradeItemClassificationId     Int                               @unique @map("gdsn_trad_item_clas_id")
+  targetMarket                      TargetMarketType[]                @relation("TargetMarket", map: "TargetMarket")
+  tradeItemSynchronisationDates     TradeItemSynchronisationDatesType @relation("TradeItemSynchronisationDates", map: "TradeItemSynchronisationDates", fields: [tradeItemSynchronisationDatesId], references: [id])
+  tradeItemSynchronisationDatesId   Int                               @unique @map("trad_item_sync_date_id")
+  tradeItemContactInformation       TradeItemContactInformationType[] @relation("TradeItemContactInformation", map: "TradeItemContactInformation")
+  tradeItemInformation              TradeItemInformationType[]        @relation("TradeItemInformation", map: "TradeItemInformation")
+  createdAt                         DateTime                          @default(now()) @map("reg_date")
+  updatedAt                         DateTime                          @default(now()) @map("upd_date")
+  deletedAt                         DateTime?                         @map("del_date")
+
+  @@map("trade_item_type")
+}
+
+enum NonBinaryLogicEnumeration {
+  FALSE          @map("FALSE")
+  NOT_APPLICABLE @map("NOT_APPLICABLE")
+  TRUE           @map("TRUE")
+  UNSPECIFIED    @map("UNSPECIFIED")
+}
